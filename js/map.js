@@ -32,8 +32,18 @@
     var accessIcon = loc.accessible ? '&#x2714;' : '&#x2718;';
     var accessClass = loc.accessible ? 'accessible-yes' : 'accessible-no';
 
+    var imageHTML = '';
+    if (loc.image) {
+      imageHTML =
+        '<div class="popup-image">' +
+          '<img src="' + escapeHTML(loc.image) + '" alt="' + escapeHTML(loc.name) + '">' +
+          (loc.imageCredit ? '<span class="popup-image-credit">' + escapeHTML(loc.imageCredit) + '</span>' : '') +
+        '</div>';
+    }
+
     return (
       '<div class="popup-content">' +
+        imageHTML +
         '<h3 class="popup-title">' + escapeHTML(loc.name) + '</h3>' +
         '<p class="popup-subtitle">' + escapeHTML(loc.subtitle) + '</p>' +
         '<p class="popup-description">' + escapeHTML(loc.description) + '</p>' +
