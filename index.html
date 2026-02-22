@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore Lord of the Rings filming locations around Wellington, New Zealand with an interactive map and driving route.">
   <title>LOTR Filming Locations | Wellington, NZ</title>
 
   <!-- Favicon -->
@@ -11,7 +12,7 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin="">
+        crossorigin>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,6 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
   <!-- Ringbearer Font -->
+  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin>
   <link href="https://fonts.cdnfonts.com/css/ringbearer" rel="stylesheet">
 
   <!-- App CSS -->
@@ -33,7 +35,7 @@
   <main class="content">
     <aside id="sidebar" class="sidebar">
       <h2 class="sidebar-heading">Filming Locations</h2>
-      <button id="route-toggle" class="route-toggle-btn">Show Driving Route</button>
+      <button id="route-toggle" class="route-toggle-btn" aria-expanded="false" aria-controls="distance-table">Show Driving Route</button>
       <div id="location-list" class="location-list"></div>
       <div id="distance-table" class="distance-table" hidden>
         <h3 class="distance-table-heading">Route Distances</h3>
@@ -50,7 +52,7 @@
         </table>
       </div>
     </aside>
-    <div id="map" class="map-container"></div>
+    <div id="map" class="map-container" role="application" aria-label="Interactive map of filming locations"></div>
   </main>
 
   <footer class="site-footer">
@@ -60,7 +62,7 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossorigin=""></script>
+          crossorigin></script>
 
   <!-- App JS -->
   <script src="js/data.js"></script>

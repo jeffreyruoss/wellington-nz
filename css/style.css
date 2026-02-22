@@ -48,23 +48,14 @@ body {
   background: var(--brown-darkest);
 }
 
-/* ---------- Parchment Background Mixin ---------- */
-.parchment-bg {
-  background:
-    repeating-linear-gradient(
-      120deg,
-      transparent,
-      transparent 2px,
-      rgba(139, 109, 71, 0.03) 2px,
-      rgba(139, 109, 71, 0.03) 4px
-    ),
-    linear-gradient(
-      180deg,
-      var(--parchment-light) 0%,
-      var(--parchment) 30%,
-      var(--parchment-dark) 70%,
-      var(--parchment) 100%
-    );
+/* Defensive hidden attribute support */
+[hidden] { display: none !important; }
+
+/* ---------- Focus Styles ---------- */
+.location-card:focus-visible,
+.route-toggle-btn:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 2px;
 }
 
 /* ---------- Header ---------- */
@@ -129,6 +120,8 @@ body {
       var(--parchment) 100%
     );
   border-right: 2px solid var(--gold-dark);
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dark) var(--parchment-dark);
 }
 
 .sidebar-heading {
@@ -252,6 +245,11 @@ body {
   transform: translateY(-1px);
 }
 
+.location-card:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
 .location-card.active {
   border-color: var(--gold-light);
   box-shadow: 0 0 12px rgba(218, 165, 32, 0.4), inset 0 0 8px rgba(218, 165, 32, 0.1);
@@ -263,6 +261,7 @@ body {
   font-weight: 600;
   color: var(--brown-dark);
   margin-bottom: 4px;
+  overflow-wrap: break-word;
 }
 
 .location-card-film {
@@ -287,7 +286,7 @@ body {
 
 .location-card-accessibility {
   font-size: 0.75rem;
-  color: var(--brown-light);
+  color: var(--text-body);
   font-style: italic;
 }
 
@@ -295,27 +294,15 @@ body {
   content: "\2139\00a0";
 }
 
-/* ---------- Route Number Badge on Card ---------- */
-.location-card-route-num {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 24px;
-  height: 24px;
-  background: var(--gold);
-  color: var(--brown-dark);
-  border-radius: 50%;
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--brown-dark);
-}
-
-.location-card-route-num.visible {
-  display: flex;
+/* ---------- Route Note ---------- */
+.route-note {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--brown-light);
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(201, 168, 76, 0.3);
 }
 
 /* ---------- Distance Table ---------- */
@@ -381,6 +368,7 @@ body {
 .map-container {
   height: 100%;
   width: 100%;
+  background: var(--parchment-dark);
 }
 
 /* ---------- Custom Leaflet Markers ---------- */
@@ -418,10 +406,6 @@ body {
   border: 2px solid var(--gold-light);
   border-radius: 50%;
   z-index: 1;
-}
-
-.marker-icon.active::before {
-  box-shadow: 0 0 12px rgba(218, 165, 32, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .marker-icon.active::after {
@@ -543,11 +527,6 @@ body {
   text-align: center;
 }
 
-/* ---------- Leaflet Route Line ---------- */
-.route-line {
-  stroke: var(--gold-dark);
-}
-
 /* ---------- Animations & Transitions ---------- */
 @keyframes markerPulse {
   0% { box-shadow: 0 0 6px rgba(218, 165, 32, 0.4); }
@@ -577,8 +556,8 @@ body {
 
   .content {
     grid-template-columns: 1fr;
-    grid-template-rows: 60vh 1fr;
-    height: calc(100vh - var(--header-height) - var(--footer-height));
+    grid-template-rows: minmax(40vh, 55vh) 1fr;
+    height: calc(100vh - var(--header-height));
   }
 
   .sidebar {
@@ -596,8 +575,8 @@ body {
     display: none;
   }
 
-  .content {
-    height: calc(100vh - var(--header-height));
+  .location-list {
+    gap: 12px;
   }
 }
 

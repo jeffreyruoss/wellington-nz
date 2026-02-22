@@ -29,16 +29,16 @@ window.SidebarController = (function () {
     var html = '';
 
     for (var i = 0; i < locations.length; i++) {
-      var loc = locations[i];
-      html += buildCardHTML(loc);
+      html += buildCardHTML(locations[i]);
     }
 
     container.innerHTML = html;
 
-    // Attach click handlers
+    // Attach click and keyboard handlers
     var cards = container.querySelectorAll('.location-card');
     for (var j = 0; j < cards.length; j++) {
       cards[j].addEventListener('click', handleCardClick);
+      cards[j].addEventListener('keydown', handleCardKeydown);
     }
   }
 
@@ -50,7 +50,7 @@ window.SidebarController = (function () {
       : loc.description;
 
     return (
-      '<div class="location-card" data-location-id="' + loc.id + '">' +
+      '<div class="location-card" data-location-id="' + loc.id + '" tabindex="0" role="button">' +
         '<div class="card-header">' +
           '<h3 class="location-card-title">' + escapeHTML(loc.name) + '</h3>' +
           '<span class="location-card-film">' + escapeHTML(loc.film) + '</span>' +
@@ -72,6 +72,13 @@ window.SidebarController = (function () {
     highlightCard(id);
   }
 
+  function handleCardKeydown(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCardClick.call(this);
+    }
+  }
+
   /* ───── highlight ───── */
 
   function highlightCard(locationId) {
@@ -85,7 +92,7 @@ window.SidebarController = (function () {
     );
     if (target) {
       target.classList.add('active');
-      target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 
@@ -98,17 +105,30 @@ window.SidebarController = (function () {
     var table = document.getElementById('distance-table');
 
     if (routeVisible) {
-      if (btn) { btn.textContent = 'Hide Driving Route'; btn.classList.add('active'); }
+      if (btn) {
+        btn.textContent = 'Hide Driving Route';
+        btn.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
       if (table) table.hidden = false;
       if (window.MapController && window.MapController.showRoute) {
         window.MapController.showRoute();
       }
     } else {
-      if (btn) { btn.textContent = 'Show Driving Route'; btn.classList.remove('active'); }
+      if (btn) {
+        btn.textContent = 'Show Driving Route';
+        btn.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
+      }
       if (table) table.hidden = true;
       if (window.MapController && window.MapController.hideRoute) {
         window.MapController.hideRoute();
       }
+    }
+
+    // Recalculate map size after sidebar content changes
+    if (window.MapController && window.MapController.invalidateSize) {
+      window.MapController.invalidateSize();
     }
   }
 
@@ -153,14 +173,23 @@ window.SidebarController = (function () {
       '</tr>';
 
     tbody.innerHTML = html;
+
+    // Add route exclusion note after the table
+    var tableContainer = document.getElementById('distance-table');
+    if (tableContainer && !tableContainer.querySelector('.route-note')) {
+      var note = document.createElement('p');
+      note.className = 'route-note';
+      note.textContent = 'Route covers 9 of 13 locations. Putangirua Pinnacles, Queen Elizabeth Park, Fernside, and Stone Street Studios are better as separate trips.';
+      tableContainer.appendChild(note);
+    }
   }
 
   /* ───── helpers ───── */
 
+  var _escDiv = document.createElement('div');
   function escapeHTML(str) {
-    var div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
+    _escDiv.textContent = String(str);
+    return _escDiv.innerHTML;
   }
 
   /* ───── expose ───── */

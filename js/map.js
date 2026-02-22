@@ -10,6 +10,7 @@
   var activeMarkerId = null;
   var routeLayer = null;
   var routeNumberLayers = [];
+  var pendingMoveEnd = null;
 
   function getLocationById(id) {
     var locations = window.AppData.LOCATIONS;
@@ -19,31 +20,55 @@
     return null;
   }
 
+  /* ───── HTML escaping (matches sidebar.js) ───── */
+
+  var _escDiv = document.createElement('div');
+  function escapeHTML(str) {
+    _escDiv.textContent = String(str);
+    return _escDiv.innerHTML;
+  }
+
   function createPopupContent(loc) {
     var accessIcon = loc.accessible ? '&#x2714;' : '&#x2718;';
     var accessClass = loc.accessible ? 'accessible-yes' : 'accessible-no';
 
     return (
       '<div class="popup-content">' +
-        '<h3 class="popup-title">' + loc.name + '</h3>' +
-        '<p class="popup-subtitle">' + loc.subtitle + '</p>' +
-        '<p class="popup-description">' + loc.description + '</p>' +
+        '<h3 class="popup-title">' + escapeHTML(loc.name) + '</h3>' +
+        '<p class="popup-subtitle">' + escapeHTML(loc.subtitle) + '</p>' +
+        '<p class="popup-description">' + escapeHTML(loc.description) + '</p>' +
         '<div class="popup-meta">' +
-          '<p><strong>Film:</strong> ' + loc.film + '</p>' +
-          '<p><strong>Parking:</strong> ' + loc.parking + '</p>' +
-          '<p class="' + accessClass + '"><span>' + accessIcon + '</span> ' + loc.accessNotes + '</p>' +
+          '<p><strong>Film:</strong> ' + escapeHTML(loc.film) + '</p>' +
+          '<p><strong>Parking:</strong> ' + escapeHTML(loc.parking) + '</p>' +
+          '<p class="' + accessClass + '"><span>' + accessIcon + '</span> ' + escapeHTML(loc.accessNotes) + '</p>' +
         '</div>' +
       '</div>'
     );
   }
 
+  /* ───── Adaptive zoom for screen size ───── */
+
+  function getFlyToZoom() {
+    var mapEl = document.getElementById('map');
+    if (mapEl && mapEl.offsetHeight < 450) return 14;
+    return 15;
+  }
+
+  /* ───── Adaptive popup maxWidth ───── */
+
+  function getPopupMaxWidth() {
+    var mapEl = document.getElementById('map');
+    if (mapEl) return Math.min(300, mapEl.offsetWidth - 60);
+    return 280;
+  }
+
   function createMarkers() {
     var locations = window.AppData.LOCATIONS;
+    var popupMaxWidth = getPopupMaxWidth();
 
     locations.forEach(function (loc) {
       var icon = L.divIcon({
         className: 'marker-icon',
-        html: '<div class="marker-pin"><div class="marker-ring"></div></div>',
         iconSize: [30, 42],
         iconAnchor: [15, 42],
         popupAnchor: [0, -42]
@@ -52,8 +77,7 @@
       var marker = L.marker(loc.coords, { icon: icon })
         .addTo(map)
         .bindPopup(createPopupContent(loc), {
-          className: 'lotr-popup',
-          maxWidth: 300
+          maxWidth: popupMaxWidth
         })
         .bindTooltip(loc.name, {
           direction: 'top',
@@ -72,6 +96,12 @@
   }
 
   function init() {
+    if (typeof L === 'undefined') {
+      var mapEl = document.getElementById('map');
+      if (mapEl) mapEl.textContent = 'Map could not be loaded. Please check your internet connection.';
+      return;
+    }
+
     map = L.map('map', {
       zoomControl: true,
       scrollWheelZoom: true
@@ -94,17 +124,26 @@
 
   function flyToLocation(locationId) {
     var loc = getLocationById(locationId);
-    if (!loc) return;
+    if (!loc || !map) return;
 
     highlightMarker(locationId);
-    map.flyTo(loc.coords, 15, { duration: 1.2 });
+
+    // Cancel any pending moveend handler from a previous flyTo
+    if (pendingMoveEnd) {
+      map.off('moveend', pendingMoveEnd);
+      pendingMoveEnd = null;
+    }
 
     var marker = markers[locationId];
     if (marker) {
-      setTimeout(function () {
+      pendingMoveEnd = function () {
         marker.openPopup();
-      }, 1300);
+        pendingMoveEnd = null;
+      };
+      map.once('moveend', pendingMoveEnd);
     }
+
+    map.flyTo(loc.coords, getFlyToZoom(), { duration: 1.2 });
   }
 
   function highlightMarker(locationId) {
@@ -130,6 +169,7 @@
   }
 
   function showRoute() {
+    if (!map) return;
     hideRoute();
 
     var routeOrder = window.AppData.ROUTE_ORDER;
@@ -171,6 +211,7 @@
   }
 
   function hideRoute() {
+    if (!map) return;
     if (routeLayer) {
       map.removeLayer(routeLayer);
       routeLayer = null;
@@ -181,12 +222,19 @@
     routeNumberLayers = [];
   }
 
+  function invalidateSize() {
+    if (map) {
+      setTimeout(function () { map.invalidateSize(); }, 100);
+    }
+  }
+
   window.MapController = {
     init: init,
     flyToLocation: flyToLocation,
     showRoute: showRoute,
     hideRoute: hideRoute,
     highlightMarker: highlightMarker,
-    unhighlightMarker: unhighlightMarker
+    unhighlightMarker: unhighlightMarker,
+    invalidateSize: invalidateSize
   };
 })();

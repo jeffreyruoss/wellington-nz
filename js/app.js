@@ -2,7 +2,11 @@
  * App bootstrap — initialises map and sidebar controllers.
  */
 document.addEventListener('DOMContentLoaded', function () {
-  MapController.init();
-  SidebarController.init();
-  console.log('LOTR Wellington app initialized');
+  try {
+    window.MapController.init();
+  } catch (e) {
+    var mapEl = document.getElementById('map');
+    if (mapEl) mapEl.textContent = 'Map failed to load. Please refresh or check your connection.';
+  }
+  window.SidebarController.init();
 });
