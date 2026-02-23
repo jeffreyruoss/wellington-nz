@@ -93,11 +93,21 @@ body {
   opacity: 0.85;
 }
 
+/* ---------- Disclaimer Banner ---------- */
+.disclaimer {
+  background: var(--parchment-dark);
+  color: var(--text-dark);
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 6px 20px;
+  border-bottom: 1px solid var(--gold-dark);
+}
+
 /* ---------- Main Content Grid ---------- */
 .content {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
-  height: calc(100vh - var(--header-height) - var(--footer-height));
+  height: calc(100vh - var(--header-height) - var(--footer-height) - 30px);
 }
 
 /* ---------- Sidebar ---------- */
@@ -580,10 +590,15 @@ body {
     font-size: 0.7rem;
   }
 
+  .disclaimer {
+    font-size: 0.7rem;
+    padding: 4px 12px;
+  }
+
   .content {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(40vh, 55vh) 1fr;
-    height: calc(100vh - var(--header-height));
+    height: calc(100vh - var(--header-height) - 26px);
   }
 
   .sidebar {
